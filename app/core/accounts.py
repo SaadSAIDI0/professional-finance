@@ -43,9 +43,9 @@ class AccountService:
         return self.get_by_username(username) is not None
 
     def _validate_account(self, real_name: str, username: str, email: str, password: str):
-        if len(real_name.strip()) < 3:
+        if len(real_name.strip()) < 7:
             raise ValueError("Real name must contain at least 3 characters.")
-        if len(username.strip()) < 4:
+        if len(username.strip()) < 8:
             raise ValueError("Username must contain at least 4 characters.")
         if not re.fullmatch(r"[a-zA-Z0-9._%+-]+@gmail\.com", email.strip()):
             raise ValueError("Email must be a Gmail address from Google, for example name@gmail.com.")
