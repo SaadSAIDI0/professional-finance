@@ -28,17 +28,13 @@ class FinanceApplication(QStackedWidget):
         self.auth_screen.login_successful.connect(self.show_dashboard)
         self.addWidget(self.auth_screen)
 
-        self.screen_bool = True
-
     def show_dashboard(self, account: dict):
         dashboard = Dashboard(account, self.transaction_service)
         dashboard.logout_requested.connect(self.show_auth)
         self.addWidget(dashboard)
         self.setCurrentWidget(dashboard)
-        self.screen_bool = False
 
     def show_auth(self):
-        
         self.setCurrentWidget(self.auth_screen)
 
 
