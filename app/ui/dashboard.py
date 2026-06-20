@@ -257,7 +257,7 @@ class Dashboard(QWidget):
         self.category_input = QComboBox()
         self.category_input.addItems(TransactionService.CATEGORIES)
         self.note_input = QLineEdit()
-        self.note_input.setPlaceholderText("Note")
+        self.note_input.setPlaceholderText("Note (optional)")
 
         add_button = QPushButton("Add transaction")
         add_button.setObjectName("primaryButton")
@@ -292,14 +292,25 @@ class Dashboard(QWidget):
         return frame
 
     def add_transaction(self):
+        amount_text = self.amount_input.text().strip()
+
+        if not amount_text:
+            QMessageBox.warning(self, "Validation Error", "Amount is required.")
+            return
+
         try:
-            amount = float(self.amount_input.text())
+            amount = float(amount_text)
+        except ValueError:
+            QMessageBox.warning(self, "Invalid Amount", "Please enter a valid number for the amount.")
+            return
+
+        try:
             self.transaction_service.add_transaction(
                 self.account["id"],
                 amount,
                 self.type_input.currentText(),
                 self.category_input.currentText(),
-                self.note_input.text(),
+                self.note_input.text().strip(),
             )
         except ValueError as error:
             QMessageBox.warning(self, "Invalid transaction", str(error))
@@ -309,16 +320,20 @@ class Dashboard(QWidget):
         self.note_input.clear()
         self.refresh()
 
+    def format_currency(self, value: float) -> str:
+        """Format a float value as currency with 2 decimal places."""
+        return f"{value:.2f} DH"
+
     def refresh(self):
         summary = self.transaction_service.summary(self.account["id"])
-        self.balance_value.setText(f"{summary['balance']:.2f} DH")
-        self.income_value.setText(f"{summary['income']:.2f} DH")
-        self.expense_value.setText(f"{summary['expense']:.2f} DH")
+        self.balance_value.setText(self.format_currency(summary["balance"]))
+        self.income_value.setText(self.format_currency(summary["income"]))
+        self.expense_value.setText(self.format_currency(summary["expense"]))
 
         rows = self.transaction_service.list_transactions(self.account["id"])
         self.table.setRowCount(len(rows))
         for row_index, row in enumerate(rows):
-            values = [row["amount"], row["type"], row["category"], row["note"], row["date"]]
+            values = [self.format_currency(row["amount"]), row["type"], row["category"], row["note"], row["date"]]
             for column_index, value in enumerate(values):
                 item = QTableWidgetItem(str(value))
                 item.setTextAlignment(Qt.AlignCenter)
