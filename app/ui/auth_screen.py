@@ -131,8 +131,6 @@ class AuthScreen(QWidget):
         self.form_layout.addWidget(self.username_input)
         self.form_layout.addWidget(self.password_input)
         self.form_layout.addLayout(options_row)
-        self.form_layout.addWidget(remember)
-        self.form_layout.addWidget(remember)
         self.form_layout.addWidget(login_button)
         self.form_layout.addWidget(switch_button)
         self.form_layout.addStretch()
@@ -154,8 +152,12 @@ class AuthScreen(QWidget):
         self.email_input = QLineEdit()
         self.email_input.setPlaceholderText("Gmail address")
         self.password_input = QLineEdit()
-        self.password_input.setPlaceholderText("Password")
+        self.password_input.setPlaceholderText("Password (min. 8 characters)")
         self.password_input.setEchoMode(QLineEdit.Password)
+
+        password_hint = QLabel("Password must be at least 8 characters")
+        password_hint.setObjectName("muted")
+        password_hint.setStyleSheet(f"color: {MUTED}; font-size: 12px;")
 
         signup_button = QPushButton("Create account")
         signup_button.setObjectName("primaryButton")
@@ -172,6 +174,7 @@ class AuthScreen(QWidget):
         self.form_layout.addWidget(self.username_input)
         self.form_layout.addWidget(self.email_input)
         self.form_layout.addWidget(self.password_input)
+        self.form_layout.addWidget(password_hint)
         self.form_layout.addWidget(signup_button)
         self.form_layout.addWidget(switch_button)
         self.form_layout.addStretch()
@@ -192,21 +195,30 @@ class AuthScreen(QWidget):
         return row
 
     def login(self):
-        account = self.account_service.login(self.username_input.text(), self.password_input.text())
+        username = self.username_input.text().strip()
+        password = self.password_input.text()
+
+        if not username or not password:
+            QMessageBox.warning(self, "Validation Error", "Please enter both username and password.")
+            return
+
+        account = self.account_service.login(username, password)
         if not account:
             QMessageBox.warning(self, "Login failed", "Invalid username or password.")
             return
         self.login_successful.emit(account)
 
     def signup(self):
-        username = self.username_input.text()
+        real_name = self.real_name_input.text().strip()
+        username = self.username_input.text().strip()
+        email = self.email_input.text().strip()
         password = self.password_input.text()
-        ok, message = self.account_service.safe_create_account(
-            self.real_name_input.text(),
-            username,
-            self.email_input.text(),
-            password,
-        )
+
+        if not real_name or not username or not email or not password:
+            QMessageBox.warning(self, "Validation Error", "Please fill in all fields.")
+            return
+
+        ok, message = self.account_service.safe_create_account(real_name, username, email, password)
         if not ok:
             QMessageBox.warning(self, "Account error", message)
             return
