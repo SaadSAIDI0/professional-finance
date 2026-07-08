@@ -281,9 +281,8 @@ class Dashboard(QWidget):
         title = QLabel("Recent transactions")
         title.setObjectName("screenTitle")
 
-        # Table now has 6 columns: Amount, Type, Category, Note, Date, and Action (Delete button)
-        self.table = QTableWidget(0, 6)
-        self.table.setHorizontalHeaderLabels(["Amount", "Type", "Category", "Note", "Date", "Action"])
+        self.table = QTableWidget(0, 5)
+        self.table.setHorizontalHeaderLabels(["Amount", "Type", "Category", "Note", "Date"])
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.verticalHeader().setVisible(False)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -321,27 +320,6 @@ class Dashboard(QWidget):
         self.note_input.clear()
         self.refresh()
 
-    def delete_transaction(self, row_index: int):
-        """Delete a transaction from the table and database."""
-        # Get transaction ID from row data
-        transaction_id = self.table.item(row_index, 0).data(Qt.UserRole)
-        
-        # Confirm deletion
-        reply = QMessageBox.question(
-            self,
-            "Confirm Delete",
-            "Are you sure you want to delete this transaction?",
-            QMessageBox.Yes | QMessageBox.No,
-        )
-        
-        if reply == QMessageBox.Yes:
-            try:
-                self.transaction_service.delete_transaction(self.account["id"], transaction_id)
-                self.refresh()
-                QMessageBox.information(self, "Success", "Transaction deleted successfully.")
-            except Exception as error:
-                QMessageBox.warning(self, "Error", f"Failed to delete transaction: {str(error)}")
-
     def format_currency(self, value: float) -> str:
         """Format a float value as currency with 2 decimal places."""
         return f"{value:.2f} DH"
@@ -355,26 +333,8 @@ class Dashboard(QWidget):
         rows = self.transaction_service.list_transactions(self.account["id"])
         self.table.setRowCount(len(rows))
         for row_index, row in enumerate(rows):
-            # Create cells for: Amount, Type, Category, Note, Date
-            values = [
-                self.format_currency(row["amount"]),
-                row["type"],
-                row["category"],
-                row["note"],
-                row["date"],
-            ]
-            
+            values = [self.format_currency(row["amount"]), row["type"], row["category"], row["note"], row["date"]]
             for column_index, value in enumerate(values):
                 item = QTableWidgetItem(str(value))
                 item.setTextAlignment(Qt.AlignCenter)
-                # Store transaction ID in the first column for deletion
-                if column_index == 0:
-                    item.setData(Qt.UserRole, row["id"])
                 self.table.setItem(row_index, column_index, item)
-            
-            # Add Delete button in the Action column
-            delete_button = QPushButton("Delete")
-            delete_button.setObjectName("dangerButton")
-            delete_button.setCursor(Qt.PointingHandCursor)
-            delete_button.clicked.connect(lambda checked, r=row_index: self.delete_transaction(r))
-            self.table.setCellWidget(row_index, 5, delete_button)
