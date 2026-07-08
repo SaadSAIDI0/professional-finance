@@ -117,20 +117,12 @@ QPushButton#primaryButton:hover {{
     background-color: #2563EB;
 }}
 
-QPushButton#primaryButton:pressed {{
-    background-color: #1d4ed8;
-}}
-
 QPushButton#textButton {{
     background-color: transparent;
     color: {BLUE};
     border: none;
     font-size: 14px;
     font-weight: 700;
-}}
-
-QPushButton#textButton:hover {{
-    color: #60a5fa;
 }}
 
 QPushButton#secondaryButton {{
@@ -164,22 +156,13 @@ QPushButton#navButton:hover {{
 }}
 
 QPushButton#dangerButton {{
-    background-color: rgba(239, 68, 68, 0.1);
+    background-color: transparent;
     color: {RED};
-    border: 1px solid {RED};
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 13px;
-    font-weight: 600;
-}}
-
-QPushButton#dangerButton:hover {{
-    background-color: rgba(239, 68, 68, 0.2);
-    border: 1px solid #dc2626;
-}}
-
-QPushButton#dangerButton:pressed {{
-    background-color: rgba(239, 68, 68, 0.3);
+    border: 1px solid {BORDER};
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 700;
 }}
 
 QCheckBox {{
@@ -195,19 +178,10 @@ QTableWidget {{
     color: {TEXT};
 }}
 
-QTableWidget::item {{
-    padding: 8px;
-}}
-
-QTableWidget::item:selected {{
-    background-color: {BLUE};
-}}
-
 QHeaderView::section {{
     background-color: #273449;
     color: {TEXT};
     border: none;
     padding: 8px;
-    font-weight: 600;
 }}
 """
